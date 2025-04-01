@@ -73,44 +73,61 @@ router.get("/:id", async (req, res) => {
 
 
 
-// Sprejmi podatke z slikami
-router.post("/dodaj", upload.single("slika"), async (req, res) => {
+
+
+
+
+
+router.post("/dodaj", upload.single('file'), async (req, res) => {
     try {
-        const { ime, datum, vsebina, program, cikel } = req.body;
-        let slikaUrl = "";
+        const { ime, datum, vsebina, program, izvajalci, cikel } = req.body;
 
-        if (req.file) {
-            slikaUrl = req.file.path;  // Shrani URL slike iz Cloudinary
-        }
+        // Log za preverjanje vseh podatkov
+        console.log("Received body:", req.body);
+        console.log("Received file:", req.file); // Preveri, ali je datoteka prišla
 
-        // Preveri, če so vsi podatki na voljo
-        if (!ime || !datum || !vsebina || !program || !cikel) {
+        // Preveri, če so vsi obvezni podatki prisotni
+        if (!ime || !datum || !vsebina || !program || !izvajalci || !cikel) {
             return res.status(400).json({ message: "Vsi podatki so obvezni!" });
         }
+
+        // Spremenimo izvajalce in program v array
+        const izvajalciArray = izvajalci.split(",").map((izvajalec) => izvajalec.trim());
+        const programArray = program.split(";").map((del) => del.trim());
 
         const db = getDb();
         if (!db) {
             return res.status(500).json({ message: "❌ Database ni na voljo" });
         }
 
-        // Ustvari nov objekt za koncert
+        // Preveri, če je bila slika naložena
+        let slikaUrl = null;
+        if (req.file) {
+            slikaUrl = req.file.path; // Pot iz Cloudinaryja, ki se pošlje v MongoDB
+        }
+
         const noviKoncert = {
             ime,
-            datum: new Date(datum),  // Poskrbi, da je datum v pravilnem formatu
+            datum: new Date(datum),
             vsebina,
-            program,
+            program: programArray,
+            izvajalci: izvajalciArray,
             cikel,
-            slika: slikaUrl,  // Dodaj sliko URL, če je na voljo
+            slika: slikaUrl, // Shrani URL slike v MongoDB
         };
 
-        // Shrani nov koncert v zbirko 'objave'
         await db.collection("objave").insertOne(noviKoncert);
 
-        res.status(201).json({ message: "✅ Objavo (koncert) uspešno dodan!" });
+        res.status(201).json({ message: "✅ Koncert uspešno dodan!" });
     } catch (err) {
         console.error("❌ Napaka pri dodajanju koncerta:", err);
         res.status(500).json({ message: "Napaka pri dodajanju koncerta!" });
     }
 });
+
+
+
+
+
 
 module.exports = router;
