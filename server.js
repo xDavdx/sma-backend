@@ -3,7 +3,7 @@ const cors = require("cors");
 const connect = require("./connect"); // Povezava z MongoDB
 const koncertRoutes = require("./routes/koncertRoutes");
 const abonentRoutes = require("./routes/abonentRoutes"); // Uvozi abonentRoutes
-
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -11,6 +11,20 @@ const PORT = process.env.PORT || 5001;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+
+// Serviraj statične datoteke iz "build" mape
+app.use(express.static(path.join(__dirname, 'build')));
+
+// Vse poti, ki niso za statične datoteke, preusmeri na index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+// Nastavi strežnik, da posluša na portu
+app.listen(PORT, () => {
+    console.log('Strežnik teče na http://localhost:3000');
+});
 
 
 // Pravilne poti za API-je

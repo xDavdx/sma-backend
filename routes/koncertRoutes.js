@@ -78,20 +78,16 @@ router.get("/:id", async (req, res) => {
 
 
 
-router.post("/dodaj", upload.single('file'), async (req, res) => {
+// 🆕 Endpoint za dodajanje koncerta z več slikami
+router.post("/dodaj", upload.array('slike', 10), async (req, res) => {  // Omogočimo do 10 slik
     try {
         const { ime, datum, vsebina, program, izvajalci, cikel } = req.body;
 
-        // Log za preverjanje vseh podatkov
-        console.log("Received body:", req.body);
-        console.log("Received file:", req.file); // Preveri, ali je datoteka prišla
-
-        // Preveri, če so vsi obvezni podatki prisotni
         if (!ime || !datum || !vsebina || !program || !izvajalci || !cikel) {
             return res.status(400).json({ message: "Vsi podatki so obvezni!" });
         }
 
-        // Spremenimo izvajalce in program v array
+        // Pretvorimo izvajalce in program v array
         const izvajalciArray = izvajalci.split(",").map((izvajalec) => izvajalec.trim());
         const programArray = program.split(";").map((del) => del.trim());
 
@@ -100,11 +96,8 @@ router.post("/dodaj", upload.single('file'), async (req, res) => {
             return res.status(500).json({ message: "❌ Database ni na voljo" });
         }
 
-        // Preveri, če je bila slika naložena
-        let slikaUrl = null;
-        if (req.file) {
-            slikaUrl = req.file.path; // Pot iz Cloudinaryja, ki se pošlje v MongoDB
-        }
+        // 📸 Pridobimo URL-je naloženih slik in jih shranimo v array
+        const slikeUrl = req.files.map(file => file.path);
 
         const noviKoncert = {
             ime,
@@ -113,7 +106,7 @@ router.post("/dodaj", upload.single('file'), async (req, res) => {
             program: programArray,
             izvajalci: izvajalciArray,
             cikel,
-            slika: slikaUrl, // Shrani URL slike v MongoDB
+            slike: slikeUrl, // Shrani array slik
         };
 
         await db.collection("objave").insertOne(noviKoncert);
