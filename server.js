@@ -21,10 +21,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
-// Nastavi strežnik, da posluša na portu
-app.listen(PORT, () => {
-    console.log('Strežnik teče na http://localhost:3000');
-});
 
 
 // Pravilne poti za API-je
