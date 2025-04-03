@@ -13,14 +13,6 @@ app.use(cors());
 app.use(express.json());
 
 
-// Serviraj statične datoteke iz "build" mape
-app.use(express.static(path.join(__dirname, 'build')));
-
-// Vse poti, ki niso za statične datoteke, preusmeri na index.html
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
-
 
 
 // Pravilne poti za API-je
