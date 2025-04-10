@@ -88,7 +88,8 @@ router.post("/dodaj", upload.array('slike', 10), async (req, res) => {  // Omogo
         let izvajalciArray = JSON.parse(izvajalci);
 
         // Pretvori izvajalce v seznam objektov (ime, instrument)
-        const programArray = program.split(";").map((del) => del.trim());
+        const programArray = JSON.parse(program);
+
 
         const db = getDb();
         if (!db) {

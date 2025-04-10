@@ -5,7 +5,11 @@ const KoncertSchema = new mongoose.Schema({
     datum: { type: Date, required: true },
     lokacija: { type: String, required: true },
     vsebina: { type: String, required: true },
-    program: { type: [String], required: true }, // ARRAY programskih točk
+    program: [{
+        skladatelj: { type: String, required: true },
+        naslov: { type: String, required: true },
+        stavki: [{ type: String }]
+    }],
     izvajalci: [{
         ime: { type: String, required: false }, // Ime izvajalca
         instrument: { type: String, required: false }, // Instrument izvajalca
