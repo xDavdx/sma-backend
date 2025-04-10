@@ -76,19 +76,18 @@ router.get("/:id", async (req, res) => {
 
 
 
-
-
-// 🆕 Endpoint za dodajanje koncerta z več slikami
+// dodaj koncerte
 router.post("/dodaj", upload.array('slike', 10), async (req, res) => {  // Omogočimo do 10 slik
     try {
         const { ime, datum, lokacija, vsebina, program, izvajalci, cikel } = req.body;
 
-        if (!ime || !datum || !lokacija || !vsebina || !program || !izvajalci || !cikel) {
+        if (!ime || !datum || !lokacija || !vsebina || !program || !cikel) {
             return res.status(400).json({ message: "Vsi podatki so obvezni!" });
         }
 
-        // Pretvorimo izvajalce in program v array
-        const izvajalciArray = izvajalci.split(",").map((izvajalec) => izvajalec.trim());
+        let izvajalciArray = JSON.parse(izvajalci);
+
+        // Pretvori izvajalce v seznam objektov (ime, instrument)
         const programArray = program.split(";").map((del) => del.trim());
 
         const db = getDb();
@@ -96,7 +95,7 @@ router.post("/dodaj", upload.array('slike', 10), async (req, res) => {  // Omogo
             return res.status(500).json({ message: "❌ Database ni na voljo" });
         }
 
-        // 📸 Pridobimo URL-je naloženih slik in jih shranimo v array
+        // Pridobimo URL-je naloženih slik in jih shranimo v array
         const slikeUrl = req.files.map(file => file.path);
 
         const noviKoncert = {
@@ -105,7 +104,7 @@ router.post("/dodaj", upload.array('slike', 10), async (req, res) => {  // Omogo
             lokacija,
             vsebina,
             program: programArray,
-            izvajalci: izvajalciArray,
+            izvajalci: izvajalciArray, // Shrani izvajalce kot objekt z imenom in inštrumentom
             cikel,
             slike: slikeUrl, // Shrani array slik
         };
@@ -118,6 +117,8 @@ router.post("/dodaj", upload.array('slike', 10), async (req, res) => {  // Omogo
         res.status(500).json({ message: "Napaka pri dodajanju koncerta!" });
     }
 });
+
+
 
 
 
