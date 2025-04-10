@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const KoncertSchema = new mongoose.Schema({
     ime: { type: String, required: true },
+    podnaslov: { type: String, required: true },
     datum: { type: Date, required: true },
     lokacija: { type: String, required: true },
     vsebina: { type: String, required: true },

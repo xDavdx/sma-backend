@@ -79,9 +79,9 @@ router.get("/:id", async (req, res) => {
 // dodaj koncerte
 router.post("/dodaj", upload.array('slike', 10), async (req, res) => {  // Omogočimo do 10 slik
     try {
-        const { ime, datum, lokacija, vsebina, program, izvajalci, cikel } = req.body;
+        const { ime, podnaslov, datum, lokacija, vsebina, program, izvajalci, cikel } = req.body;
 
-        if (!ime || !datum || !lokacija || !vsebina || !program || !cikel) {
+        if (!ime || !podnaslov || !datum || !lokacija || !vsebina || !program || !cikel) {
             return res.status(400).json({ message: "Vsi podatki so obvezni!" });
         }
 
@@ -101,6 +101,7 @@ router.post("/dodaj", upload.array('slike', 10), async (req, res) => {  // Omogo
 
         const noviKoncert = {
             ime,
+            podnaslov,
             datum: new Date(datum),
             lokacija,
             vsebina,
