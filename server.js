@@ -4,6 +4,7 @@ const connect = require("./connect"); // Povezava z MongoDB
 const koncertRoutes = require("./routes/koncertRoutes");
 const abonentRoutes = require("./routes/abonentRoutes");
 const noviceRoutes = require("./routes/noviceRoutes");
+const rezervacijeRoutes = require("./routes/rezervacijeRoutes");
 const path = require('path');
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/koncerti", koncertRoutes);
 app.use("/abonent", abonentRoutes);
 app.use("/novice", noviceRoutes);
+app.use("/rezervacije", rezervacijeRoutes);
 
 // API endpoint za testiranje
 app.get("/", (req, res) => {
