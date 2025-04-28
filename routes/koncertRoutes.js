@@ -127,4 +127,61 @@ router.post("/dodaj", upload.array('slike', 10), async (req, res) => {  // Omogo
 
 
 
+
+
+
+// Uredi koncert
+router.put("/uredi/:id", upload.array('slike', 10), async (req, res) => {
+    try {
+        const db = getDb();
+        const koncertId = req.params.id;
+
+        if (!ObjectId.isValid(koncertId)) {
+            return res.status(400).json({ message: "Neveljaven ID" });
+        }
+
+        const { ime, podnaslov, datum, lokacija, vsebina, program, izvajalci, cikel } = req.body;
+
+        const slikeUrl = req.files.map(file => file.path);
+
+        const updateFields = {
+            ime,
+            podnaslov,
+            datum: new Date(datum),
+            lokacija,
+            vsebina,
+            program: JSON.parse(program),
+            izvajalci: JSON.parse(izvajalci),
+            cikel,
+        };
+
+        // Če so naložene nove slike, jih dodamo
+        if (slikeUrl.length > 0) {
+            updateFields.slike = slikeUrl;
+        }
+
+        const result = await db.collection("objave").updateOne(
+            { _id: new ObjectId(koncertId) },
+            { $set: updateFields }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: "Koncert ni najden" });
+        }
+
+        res.json({ message: "✅ Koncert uspešno posodobljen!" });
+    } catch (err) {
+        console.error("❌ Napaka pri urejanju koncerta:", err);
+        res.status(500).json({ message: "Napaka pri urejanju koncerta" });
+    }
+});
+
+
+
+
+
+
+
+
+
 module.exports = router;
