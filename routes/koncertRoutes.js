@@ -178,6 +178,31 @@ router.put("/uredi/:id", upload.array('slike', 10), async (req, res) => {
 
 
 
+router.delete("/:id", async (req, res) => {
+    try {
+        const db = getDb();
+        const koncertId = req.params.id;
+
+        if (!ObjectId.isValid(koncertId)) {
+            return res.status(400).json({ message: "❌ Neveljaven ID" });
+        }
+
+        const result = await db.collection("objave").deleteOne({ _id: new ObjectId(koncertId) });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: "❌ Koncert ni bil najden" });
+        }
+
+        res.json({ message: "✅ Koncert uspešno izbrisan!" });
+    } catch (err) {
+        console.error("❌ Napaka pri brisanju koncerta:", err);
+        res.status(500).json({ message: "Napaka strežnika pri brisanju koncerta" });
+    }
+});
+
+
+
+
 
 
 
