@@ -30,11 +30,13 @@ router.get("/", async (req, res) => {
 
 // POST nova rezervacija
 router.post("/", async (req, res) => {
-    const { ime, email, steviloVstopnic, koncertId, koncertIme, koncertDatum, koncertLokacija } = req.body;
+    const { ime, email, steviloVstopnic, koncertId, koncertIme, koncertDatum, koncertLokacija, vir, drugiVir } = req.body;
 
     if (!ime || !email || !steviloVstopnic || !koncertId || !koncertIme) {
         return res.status(400).json({ message: "Manjkajo podatki" });
     }
+
+    const koncniVir = vir === "drugo" ? drugiVir : vir;
 
     try {
         const db = getDb();
@@ -46,6 +48,7 @@ router.post("/", async (req, res) => {
             koncertIme,
             koncertDatum,
             koncertLokacija,
+            vir: koncniVir || "ni navedeno",
             casRezervacije: new Date(),
         };
 
