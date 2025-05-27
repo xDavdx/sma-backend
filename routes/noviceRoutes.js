@@ -14,7 +14,6 @@ cloudinary.config({
     api_secret: "zo8mc2WWiMPOkIqEmz_7W73wnNU"
 });
 
-// Multer + Cloudinary
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
@@ -53,10 +52,11 @@ router.get("/:id", async (req, res) => {
 // POST dodaj novico
 router.post("/dodaj", upload.array("slike", 10), async (req, res) => {
     try {
-        const { ime, podnaslov, vsebina, datum } = req.body;
+        const { ime, podnaslov, sekcije, datum } = req.body;
         const slikeUrl = req.files.map(file => file.path);
+        const parsedSekcije = JSON.parse(sekcije);
 
-        if (!ime || !podnaslov || !vsebina || !datum) {
+        if (!ime || !podnaslov || !datum || !parsedSekcije.length) {
             return res.status(400).json({ message: "Manjkajoči podatki" });
         }
 
@@ -64,8 +64,12 @@ router.post("/dodaj", upload.array("slike", 10), async (req, res) => {
         const novaNovica = {
             ime,
             podnaslov,
-            vsebina,
             datum: new Date(datum),
+            sekcije: parsedSekcije.map(s => ({
+                datum: new Date(s.datum),
+                podpodnaslov: s.podpodnaslov || "",
+                vsebina: s.vsebina
+            })),
             slike: slikeUrl
         };
 
