@@ -81,4 +81,58 @@ router.post("/dodaj", upload.array("slike", 10), async (req, res) => {
     }
 });
 
+
+// izbrisi novico
+router.delete("/:id", async (req, res) => {
+    try {
+        const db = getDb();
+        const { id } = req.params;
+        await db.collection("novice").deleteOne({ _id: new ObjectId(id) });
+        res.json({ message: "🗑️ Novica uspešno izbrisana." });
+    } catch (err) {
+        console.error("Napaka pri brisanju novice:", err);
+        res.status(500).json({ message: "Napaka pri brisanju novice." });
+    }
+});
+
+router.put("/:id", upload.array("slike", 10), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { ime, podnaslov, datum, sekcije } = req.body;
+        const parsedSekcije = JSON.parse(sekcije);
+
+        const slikeUrl = req.files.map(file => file.path);
+
+        const db = getDb();
+
+        const updateFields = {
+            ime,
+            podnaslov,
+            datum: new Date(datum),
+            sekcije: parsedSekcije.map(s => ({
+                datum: new Date(s.datum),
+                podpodnaslov: s.podpodnaslov || "",
+                vsebina: s.vsebina
+            })),
+        };
+
+        // Če so bile poslane nove slike, jih dodamo v update
+        if (slikeUrl.length > 0) {
+            updateFields.slike = slikeUrl;
+        }
+
+        await db.collection("novice").updateOne(
+            { _id: new ObjectId(id) },
+            { $set: updateFields }
+        );
+
+        res.json({ message: "✏️ Novica posodobljena!" });
+    } catch (err) {
+        console.error("Napaka pri posodabljanju novice:", err);
+        res.status(500).json({ message: "Napaka pri posodabljanju." });
+    }
+});
+
+
+
 module.exports = router;
